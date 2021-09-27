@@ -10,7 +10,7 @@ from mcpackutil import dotminecraft
 from mcpackutil.is_pack import is_pack
 
 
-def pack(version: str, output: str, func, folders: list[str]):
+def pack(version: str, output: str, func, folders: list[str], alt: str = ""):
     """Extracts a Minecraft resource pack from your .minecraft"""
     mc = f"{dotminecraft.versions}/{version}/{version}.jar"
 
@@ -23,11 +23,11 @@ def pack(version: str, output: str, func, folders: list[str]):
                     if folders and not file.startswith(tuple(folders)):
                         continue
                     else:
-                        zf.extract(file, f"{expanded}/{version}")
+                        zf.extract(file, f"{expanded}/{version if alt == '' else alt}")
                         func(f"{version}/{file}")
 
 
-def asset(version: str, output: str, func, *resource: str):
+def asset(version: str, output: str, func, alt: str = "", *resource: str):
     expanded = os.path.expanduser(os.path.expandvars(output))
 
     ver = -1
@@ -46,7 +46,7 @@ def asset(version: str, output: str, func, *resource: str):
         for rt in resource:
             if k.startswith(rt):
                 source = dotminecraft.assets_objects / hashish[0:2] / hashish
-                destination = f"{expanded}/{version}/assets/{k}"
+                destination = f"{expanded}/{version if alt == '' else alt}/assets/{k}"
 
                 try:
                     os.makedirs("/".join(destination.split("/")[:-1]))

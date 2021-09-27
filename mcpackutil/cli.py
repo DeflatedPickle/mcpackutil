@@ -17,7 +17,7 @@ name = "mcpackutil"
 
 v_major = "1"
 v_min = "0"
-v_patch = "2"
+v_patch = "3"
 
 
 def _fversion():
@@ -78,6 +78,7 @@ def zipup(i, o):
 
 
 @main.group()
+@click.option("-n", "--name", "n", type=str, default="", show_default=True)
 @click.option(
     "-v", "--version", "v", type=str,
     help=",".join(dotminecraft.get_vanilla_packs())
@@ -85,7 +86,7 @@ def zipup(i, o):
 @click.option("-o", "--output", "o", type=click.Path())
 @click.option("-i", "--icons", "i", is_flag=True)
 @click.pass_context
-def extract(ctx, v, o, i):
+def extract(ctx, n, v, o, i):
     """Extract a resource pack from a local Minecraft version"""
 
     if v is None:
@@ -96,12 +97,19 @@ def extract(ctx, v, o, i):
 
     ctx.obj = {
         "d": ctx.obj["d"],
+        "n": n,
         "v": v,
         "o": o
     }
 
     if i:
-        extractor.asset(ctx.obj["v"], ctx.obj["o"], lambda s: print(s) if ctx.obj["d"] else '', "icons")
+        extractor.asset(
+            ctx.obj["v"],
+            ctx.obj["o"],
+            lambda s: print(s) if ctx.obj["d"] else '',
+            ctx.obj["n"],
+            "icons"
+        )
 
 
 @extract.command()
@@ -109,7 +117,13 @@ def extract(ctx, v, o, i):
 @click.pass_context
 def version(ctx, f):
     """Extract the assets of a local Minecraft version"""
-    extractor.pack(ctx.obj["v"], ctx.obj["o"], lambda s: print(s) if ctx.obj["d"] else '', f)
+    extractor.pack(
+        ctx.obj["v"],
+        ctx.obj["o"],
+        lambda s: print(s) if ctx.obj["d"] else '',
+        f,
+        ctx.obj["n"]
+    )
 
 
 @extract.group()
@@ -139,7 +153,13 @@ def minecraft(ctx, i, l, s):
     if s or not i and not l:
         r.append(f"{p}/sounds")
 
-    extractor.asset(ctx.obj["v"], ctx.obj["o"], lambda s: print(s) if ctx.obj["d"] else '', *r)
+    extractor.asset(
+        ctx.obj["v"],
+        ctx.obj["o"],
+        lambda s: print(s) if ctx.obj["d"] else '',
+        ctx.obj["n"],
+        *r
+    )
 
 
 @asset.command()
@@ -157,7 +177,13 @@ def realms(ctx, l, t):
     if t or not l:
         r.append(f"{p}/textures")
 
-    extractor.asset(ctx.obj["v"], ctx.obj["o"], lambda s: print(s) if ctx.obj["d"] else '', *r)
+    extractor.asset(
+        ctx.obj["v"],
+        ctx.obj["o"],
+        lambda s: print(s) if ctx.obj["d"] else '',
+        ctx.obj["n"],
+        *r
+    )
 
 
 if __name__ == "__main__":
